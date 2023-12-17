@@ -1,0 +1,17 @@
+{
+  "name": "animation-exhibit",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "serve src",
+    "check": "npx @biomejs/biome check ./src/**/* --apply"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@biomejs/biome": "1.4.1",
+    "serve": "^14.2.1"
+  }
+}
