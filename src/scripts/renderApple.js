@@ -1,60 +1,58 @@
-import * as THREE from "three";
-
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-const renderer = new THREE.WebGLRenderer();
-const controls = new OrbitControls(camera, renderer.domElement);
+import { Model } from "./model.js"
 
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.body.appendChild(renderer.domElement);
+export class Apple extends Model {
+	animationFrameId = null;
 
-const loader = new GLTFLoader();
+	constructor(scene, camera, renderer, controls) {
+		super();
 
-loader.load(
-	'../models/apple_17_47_37.gltf',
-	function (gltf) {
-		const model = gltf.scene;
+		this.scene = scene;
+		this.camera = camera;
+		this.renderer = renderer;
+		this.controls = controls;
 
-		scene.add(model);
+		camera.position.z = 6;
+	}
 
-		model.position.set(0, 0, 0);
-		model.scale.set(50, 50, 50);
+	loadModel() {
+		const loader = new GLTFLoader();
 
-		camera.position.set(5, 5, 2);
-		camera.lookAt(model.position);
-	},
-	(xhr) => console.log((xhr.loaded / xhr.total * 100) + '% loaded'),
-	(error) => console.error('Error loading GLTF model', error)
-);
+		loader.load(
+			'../models/apple_17_47_37.gltf',
+			(gltf) => {
+				this.model = gltf.scene;
 
-window.addEventListener('resize', () => {
-	const width = window.innerWidth;
-	const height = window.innerHeight;
+				gltf.scene.position.set(0, 0, 0);
+				gltf.scene.scale.set(50, 50, 50);
+				gltf.scene.name = 'apple';
 
-	renderer.setSize(width, height);
+				this.scene.add(gltf.scene);
 
-	camera.aspect = width / height;
-	camera.updateProjectionMatrix();
+				this.camera.position.set(5, 5, 2);
+				this.camera.lookAt(gltf.scene.position);
+			}
+		);
+	}
 
-	controls.update();
-});
+	render() {
+		this.animationFrameId = requestAnimationFrame(() => {
+			this.render();
+		});
 
-camera.position.z = 6;
+		this.controls.update();
 
-export function render() {
-  console.log('hello apple')
-	requestAnimationFrame(render);
+		this.renderer.render(this.scene, this.camera);
+	}
 
-	controls.update();
-
-	renderer.render(scene, camera);
-}
-
-export function clear() {
-  console.log('bye apple')
-
-  scene.remove(scene.children[0]);
+	clear() {
+		if (this.model !== null) {
+			cancelAnimationFrame(this.animationFrameId);
+			this.scene.remove(this.scene.getObjectByName('apple'));
+			this.model = null;
+		} else {
+			console.error('No model to remove');
+		}
+	}
 }
